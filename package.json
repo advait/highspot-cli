@@ -1,0 +1,63 @@
+{
+  "name": "highspot-cli",
+  "version": "0.1.0",
+  "description": "Agent-first CLI for the Highspot API",
+  "license": "MIT",
+  "author": "Advait Shinde",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/advait/highspot-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/advait/highspot-cli/issues"
+  },
+  "homepage": "https://github.com/advait/highspot-cli#readme",
+  "bin": {
+    "highspot": "dist/bin/highspot.js",
+    "highspot-cli": "dist/bin/highspot.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "npm run build && node dist/bin/highspot.js",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "npm run typecheck && npm run lint",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.8.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "bin": "highspot",
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "additionalVersionFlags": [
+      "-v"
+    ],
+    "helpClass": "./dist/lib/help.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "keywords": [
+    "highspot",
+    "cli",
+    "oclif",
+    "sales-enablement"
+  ]
+}
