@@ -16,8 +16,8 @@ export default class Help extends OclifHelp {
         [
           ["highspot --help"],
           ['highspot search "GoGuardian Teacher" --limit 5'],
-          ["highspot item it_abc123 --plain"],
-          ["highspot content it_abc123 --format text/plain --plain"],
+          ["highspot get it_abc123 --meta-only"],
+          ["highspot get it_abc123 --output ./discover-guide.pdf"],
           ["highspot me --json"],
         ],
         { indentation: 2, spacer: "\n", stripAnsi: this.opts.stripAnsi },

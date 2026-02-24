@@ -75,4 +75,21 @@ export const contentFlags = {
   start: Flags.string({
     description: "Optional cursor/start token for paginated content",
   }),
+  output: Flags.string({
+    char: "o",
+    description: "Write content body to a specific file path",
+  }),
+  "output-dir": Flags.string({
+    description:
+      "Directory for auto-saved binary content (default: current working directory)",
+  }),
+  "meta-only": Flags.boolean({
+    description: "Return item metadata only (skip content download)",
+    default: false,
+  }),
+  force: Flags.boolean({
+    char: "f",
+    description: "Allow overwriting an existing output file",
+    default: false,
+  }),
 };

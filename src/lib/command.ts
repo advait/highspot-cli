@@ -90,6 +90,10 @@ export abstract class BaseCommand extends Command {
     error: unknown,
     flags: { plain?: boolean; [key: string]: unknown },
   ): never {
+    if (error instanceof Error && /^EEXIT:\s*\d+/.test(error.message)) {
+      throw error;
+    }
+
     const mode = this.outputMode(flags);
 
     if (error instanceof ApiError) {

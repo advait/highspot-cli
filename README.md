@@ -72,8 +72,7 @@ Example `.highspot-cli.json`:
 
 ```bash
 highspot search <query>
-highspot item <item-id>
-highspot content <item-id>
+highspot get <item-id>
 highspot me
 ```
 
@@ -94,6 +93,15 @@ Global flags:
 - `--no-input`
 - `--no-color`
 
+`get` command flags:
+
+- `--format <value>`
+- `--start <value>`
+- `--meta-only` (skip content download)
+- `-o, --output <path>` (explicit file path)
+- `--output-dir <path>` (directory for auto-saved binary files)
+- `-f, --force` (overwrite existing output file)
+
 Exit codes:
 
 - `0` success
@@ -105,8 +113,11 @@ Exit codes:
 ```bash
 highspot search "GoGuardian Teacher" --limit 10
 highspot search "Beacon" --sort-by date_added --plain
-highspot item it_abc123
-highspot content it_abc123 --format text/plain --plain
+highspot get it_abc123 --meta-only
+highspot get it_abc123 --format text/plain --plain
+highspot get it_abc123
+highspot get it_abc123 --output ./custom-filename.pdf
+highspot get it_abc123 --output-dir ./downloads
 highspot me --json
 highspot search "Fleet" --dry-run
 ```
@@ -115,6 +126,9 @@ Behavior notes:
 
 - Prompts are not used; `--no-input` is accepted for automation consistency.
 - Primary data goes to stdout, errors go to stderr.
+- `get` always fetches `/items/{id}` metadata first, then fetches `/items/{id}/content` unless `--meta-only` is set.
+- Binary content is automatically saved to disk using Highspot `content_name` (canonical filename) when available.
+- Use `--output` to force a specific filename/path, or `--output-dir` to control where auto-saved binaries are written.
 
 ## Development
 

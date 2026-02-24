@@ -54,15 +54,39 @@ export type HighspotGetItemResult = {
   item: unknown;
 };
 
-export type HighspotGetItemContentResult = {
+export type HighspotGetItemJsonContentResult = {
+  kind: "json";
   content: unknown;
-  contentEncoding?: string;
-  contentLength?: number;
   contentType: string;
-  isBinary?: boolean;
-  isJson: boolean;
+  isBinary: false;
+  isJson: true;
   itemId: string;
 };
+
+export type HighspotGetItemTextContentResult = {
+  kind: "text";
+  content: string;
+  contentLength: number;
+  contentType: string;
+  isBinary: false;
+  isJson: false;
+  itemId: string;
+};
+
+export type HighspotGetItemBinaryContentResult = {
+  kind: "binary";
+  bytes: Uint8Array;
+  contentLength: number;
+  contentType: string;
+  isBinary: true;
+  isJson: false;
+  itemId: string;
+};
+
+export type HighspotGetItemContentResult =
+  | HighspotGetItemJsonContentResult
+  | HighspotGetItemTextContentResult
+  | HighspotGetItemBinaryContentResult;
 
 export class ApiError extends Error {
   status: number;
@@ -280,8 +304,8 @@ export class HighspotClient {
     if (contentType.includes("json")) {
       const payload = (await response.json()) as unknown;
       return {
+        kind: "json",
         content: payload,
-        contentEncoding: "json",
         contentType,
         isBinary: false,
         isJson: true,
@@ -292,8 +316,8 @@ export class HighspotClient {
     if (!looksTextual(contentType)) {
       const binary = await response.arrayBuffer();
       return {
-        content: Buffer.from(binary).toString("base64"),
-        contentEncoding: "base64",
+        kind: "binary",
+        bytes: new Uint8Array(binary),
         contentLength: binary.byteLength,
         contentType,
         isBinary: true,
@@ -304,8 +328,8 @@ export class HighspotClient {
 
     const textContent = await response.text();
     return {
+      kind: "text",
       content: textContent,
-      contentEncoding: "utf8",
       contentLength: textContent.length,
       contentType,
       isBinary: false,
