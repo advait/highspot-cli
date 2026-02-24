@@ -31,6 +31,12 @@ export HIGHSPOT_API_KEY_ID=hs_key_id_xxx
 export HIGHSPOT_API_KEY_SECRET=hs_key_secret_xxx
 ```
 
+Or provide a precomputed Basic auth header directly:
+
+```bash
+export HIGHSPOT_BASIC_AUTH="Basic <base64(id:secret)>"
+```
+
 Optional:
 
 ```bash
@@ -43,6 +49,10 @@ It is not implied by the API key:
 - API key (`HIGHSPOT_API_KEY_ID` + `HIGHSPOT_API_KEY_SECRET`) authenticates the caller.
 - `hs-user` sets an explicit user context for requests where impersonation is needed.
 - CLI flag precedence still applies, so `--hs-user` overrides `HIGHSPOT_HS_USER`.
+
+Auth precedence:
+- `HIGHSPOT_BASIC_AUTH` is used directly when set.
+- Otherwise, `HIGHSPOT_API_KEY_ID` + `HIGHSPOT_API_KEY_SECRET` are used to compute `Authorization: Basic ...`.
 
 ## Config Files
 
@@ -63,6 +73,7 @@ Example `.highspot-cli.json`:
   "maxRetries": 3,
   "retryDelayMs": 1200,
   "timeoutMs": 30000,
+  "basicAuth": "Basic <base64(id:secret)>",
   "apiKeyId": "hs_key_id_xxx",
   "apiKeySecret": "hs_key_secret_xxx"
 }

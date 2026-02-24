@@ -1,7 +1,7 @@
 import { Help as OclifHelp } from "@oclif/core";
 
 const AUTH_TEXT =
-  "Requires HIGHSPOT_API_KEY_ID and HIGHSPOT_API_KEY_SECRET via env or config file.";
+  "Requires HIGHSPOT_BASIC_AUTH, or HIGHSPOT_API_KEY_ID and HIGHSPOT_API_KEY_SECRET, via env or config file.";
 const CONFIG_TEXT =
   "Precedence: flags > env > project config (.highspot-cli.json) > user config (~/.config/highspot-cli/config.json) > system config.";
 

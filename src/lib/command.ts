@@ -104,7 +104,7 @@ export abstract class BaseCommand extends Command {
     if (error instanceof ConfigError) {
       writeError(mode, {
         error: error.message,
-        hint: "Set HIGHSPOT_API_KEY_ID and HIGHSPOT_API_KEY_SECRET, or configure .highspot-cli.json.",
+        hint: "Set HIGHSPOT_BASIC_AUTH, or set HIGHSPOT_API_KEY_ID and HIGHSPOT_API_KEY_SECRET, or configure .highspot-cli.json.",
       });
       this.exit(2);
     }

@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -7,6 +8,7 @@ type ConfigRecord = {
   maxRetries?: number | string;
   retryDelayMs?: number | string;
   timeoutMs?: number | string;
+  basicAuth?: string;
   apiKeyId?: string;
   apiKeySecret?: string;
 };
@@ -25,8 +27,7 @@ export type ResolvedConfig = {
   maxRetries: number;
   retryDelayMs: number;
   timeoutMs: number;
-  apiKeyId: string;
-  apiKeySecret: string;
+  authorizationHeader: string;
 };
 
 export class ConfigError extends Error {
@@ -85,6 +86,10 @@ function normalize(config: ConfigRecord): ConfigRecord {
     maxRetries: toInteger(config.maxRetries),
     retryDelayMs: toInteger(config.retryDelayMs),
     timeoutMs: toInteger(config.timeoutMs),
+    basicAuth:
+      typeof config.basicAuth === "string"
+        ? config.basicAuth.trim()
+        : undefined,
     apiKeyId:
       typeof config.apiKeyId === "string" ? config.apiKeyId.trim() : undefined,
     apiKeySecret:
@@ -128,9 +133,55 @@ function fromEnv(): ConfigRecord {
     maxRetries: process.env.HIGHSPOT_MAX_RETRIES,
     retryDelayMs: process.env.HIGHSPOT_RETRY_DELAY_MS,
     timeoutMs: process.env.HIGHSPOT_TIMEOUT_MS,
+    basicAuth: process.env.HIGHSPOT_BASIC_AUTH,
     apiKeyId: process.env.HIGHSPOT_API_KEY_ID,
     apiKeySecret: process.env.HIGHSPOT_API_KEY_SECRET,
   });
+}
+
+function normalizeAuthorizationHeader(
+  value: string | undefined,
+): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  if (/^Basic\s+/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  return `Basic ${trimmed}`;
+}
+
+function resolveAuthorizationHeader(config: ConfigRecord): string {
+  const explicitBasicAuth = normalizeAuthorizationHeader(config.basicAuth);
+  if (explicitBasicAuth) {
+    return explicitBasicAuth;
+  }
+
+  if (!config.apiKeyId && !config.apiKeySecret) {
+    throw new ConfigError(
+      "Missing auth configuration. Set HIGHSPOT_BASIC_AUTH, or set both HIGHSPOT_API_KEY_ID and HIGHSPOT_API_KEY_SECRET.",
+    );
+  }
+
+  if (!config.apiKeyId) {
+    throw new ConfigError(
+      "Missing HIGHSPOT_API_KEY_ID. Set HIGHSPOT_BASIC_AUTH, or configure apiKeyId with apiKeySecret in .highspot-cli.json.",
+    );
+  }
+
+  if (!config.apiKeySecret) {
+    throw new ConfigError(
+      "Missing HIGHSPOT_API_KEY_SECRET. Set HIGHSPOT_BASIC_AUTH, or configure apiKeySecret with apiKeyId in .highspot-cli.json.",
+    );
+  }
+
+  const token = Buffer.from(
+    `${config.apiKeyId}:${config.apiKeySecret}`,
+  ).toString("base64");
+  return `Basic ${token}`;
 }
 
 function overlay(base: ConfigRecord, next: ConfigRecord): ConfigRecord {
@@ -153,18 +204,7 @@ export function loadResolvedConfig(
   const maxRetries = toInteger(config.maxRetries) ?? DEFAULT_MAX_RETRIES;
   const retryDelayMs = toInteger(config.retryDelayMs) ?? DEFAULT_RETRY_DELAY_MS;
   const timeoutMs = toInteger(config.timeoutMs) ?? DEFAULT_TIMEOUT_MS;
-
-  if (!config.apiKeyId) {
-    throw new ConfigError(
-      "Missing HIGHSPOT_API_KEY_ID. Set env vars or configure apiKeyId in .highspot-cli.json.",
-    );
-  }
-
-  if (!config.apiKeySecret) {
-    throw new ConfigError(
-      "Missing HIGHSPOT_API_KEY_SECRET. Set env vars or configure apiKeySecret in .highspot-cli.json.",
-    );
-  }
+  const authorizationHeader = resolveAuthorizationHeader(config);
 
   return {
     endpoint: config.endpoint || DEFAULT_ENDPOINT,
@@ -172,7 +212,6 @@ export function loadResolvedConfig(
     maxRetries,
     retryDelayMs,
     timeoutMs,
-    apiKeyId: config.apiKeyId,
-    apiKeySecret: config.apiKeySecret,
+    authorizationHeader,
   };
 }

@@ -1,4 +1,3 @@
-import { Buffer } from "node:buffer";
 import type { ResolvedConfig } from "./config.js";
 
 const TEXTUAL_CONTENT_TYPE_HINTS = [
@@ -126,7 +125,7 @@ export class HighspotClient {
   readonly #timeoutMs: number;
 
   constructor(config: ResolvedConfig) {
-    this.#authorizationHeader = `Basic ${Buffer.from(`${config.apiKeyId}:${config.apiKeySecret}`).toString("base64")}`;
+    this.#authorizationHeader = config.authorizationHeader;
     this.#endpoint = sanitizeEndpoint(config.endpoint);
     this.#hsUser = config.hsUser;
     this.#maxRetries = config.maxRetries;
