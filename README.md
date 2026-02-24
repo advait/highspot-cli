@@ -1,8 +1,9 @@
 # highspot-cli
 
-`highspot-cli` is an `oclif` command-line client for the Highspot REST API.
+`highspot-cli` is an unofficial CLI client for the [Highspot](https://www.highspot.com/) REST API.
 
-It is designed for both humans and scripts:
+It is designed for both humans and agents:
+
 - default output: JSON on stdout
 - script-stable output: `--plain`
 - diagnostics/errors: stderr
@@ -37,9 +38,16 @@ export HIGHSPOT_API_ENDPOINT=https://api.highspot.com/v1.0
 export HIGHSPOT_HS_USER=user@example.com
 ```
 
+`HIGHSPOT_HS_USER` (or `--hs-user`) is optional impersonation context.
+It is not implied by the API key:
+- API key (`HIGHSPOT_API_KEY_ID` + `HIGHSPOT_API_KEY_SECRET`) authenticates the caller.
+- `hs-user` sets an explicit user context for requests where impersonation is needed.
+- CLI flag precedence still applies, so `--hs-user` overrides `HIGHSPOT_HS_USER`.
+
 ## Config Files
 
 Config precedence (highest to lowest):
+
 1. CLI flags
 2. Environment variables
 3. Project config: `.highspot-cli.json`
@@ -70,6 +78,7 @@ highspot me
 ```
 
 Global flags:
+
 - `-h, --help`
 - `--version`
 - `--json` (default output mode)
@@ -86,6 +95,7 @@ Global flags:
 - `--no-color`
 
 Exit codes:
+
 - `0` success
 - `1` API/runtime failure
 - `2` invalid usage or missing configuration
@@ -102,6 +112,7 @@ highspot search "Fleet" --dry-run
 ```
 
 Behavior notes:
+
 - Prompts are not used; `--no-input` is accepted for automation consistency.
 - Primary data goes to stdout, errors go to stderr.
 
